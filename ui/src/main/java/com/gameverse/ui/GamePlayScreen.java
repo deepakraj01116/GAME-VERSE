@@ -18,6 +18,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -252,6 +253,8 @@ public class GamePlayScreen extends JFrame {
             case "Snake" -> "\uD83C\uDFAE Arrow keys / WASD \u2190\u2191\u2192\u2193 to move | Eat food to grow" + diffStr;
             case "Pong" -> "\uD83C\uDFAE \u2191/\u2193 or W/S to move paddle | First to 5 wins" + diffStr;
             case "Tic-Tac-Toe" -> "\uD83C\uDFAE Click cell to place X | Beat the AI!" + diffStr;
+            case "Connect Four" -> "\uD83C\uDFAE Click a column to drop a disc | Connect four to win!" + diffStr;
+            case "Blackjack" -> "\uD83C\uDFAE Click left side to hit or right side to stand | Beat the dealer!" + diffStr;
             case "Memory Game" -> "\uD83C\uDFAE Click cards to flip | Beat the AI opponent!" + diffStr;
             case "Mini Racing" -> "\uD83C\uDFAE \u2191 accelerate, \u2193 brake | Race to the finish!" + diffStr;
             case "Chess" -> "\uD83C\uDFAE Click white piece \u2192 click destination | Move king 2 squares to castle | Checkmate to win!" + diffStr;
@@ -366,6 +369,31 @@ public class GamePlayScreen extends JFrame {
                         }
                     }
                 }
+                case "Connect Four" -> {
+                    int boardSize = Math.min(boardPanel.getWidth(), boardPanel.getHeight()) - 80;
+                    int cell = boardSize / 7;
+                    int sx = (boardPanel.getWidth() - boardSize) / 2;
+                    int col = (mx - sx) / cell;
+                    if (col >= 0 && col < 7) {
+                        boolean ok = (boolean) game.getClass().getMethod("makeMove", int.class).invoke(game, col);
+                        if (ok) {
+                            game.update(0.1f);
+                            statusLabel.setText("\u27A1\uFE0F Move played. Keep connecting four!");
+                        } else {
+                            statusLabel.setText("\u26A0\uFE0F That column is full.");
+                        }
+                    }
+                }
+                case "Blackjack" -> {
+                    if (mx < boardPanel.getWidth() / 2) {
+                        boolean ok = (boolean) game.getClass().getMethod("hit").invoke(game);
+                        statusLabel.setText(ok ? "\uD83C\uDCC4 You hit. Dealer turn next." : "\u26A0\uFE0F You cannot hit right now.");
+                    } else {
+                        boolean ok = (boolean) game.getClass().getMethod("stand").invoke(game);
+                        statusLabel.setText(ok ? "\uD83D\uDCCB You stood. Round finished." : "\u26A0\uFE0F You cannot stand right now.");
+                    }
+                    boardPanel.repaint();
+                }
                 case "Memory Game" -> {
                     MemoryGame mg = (MemoryGame) game;
                     if (!mg.isPlayerTurn()) {
@@ -438,6 +466,7 @@ public class GamePlayScreen extends JFrame {
         int base = switch (gameName) {
             case "Snake" -> 150;
             case "Pong" -> 16;
+            case "Connect Four", "Blackjack" -> 120;
             case "Memory Game", "Chess" -> 50;
             default -> 33;
         };
@@ -462,12 +491,101 @@ public class GamePlayScreen extends JFrame {
 
         switch (gameName) {
             case "Tic-Tac-Toe" -> drawTicTacToe(g2, w, h);
+            case "Connect Four" -> drawConnectFour(g2, w, h);
+            case "Blackjack" -> drawBlackjack(g2, w, h);
             case "Snake" -> drawSnake(g2, w, h);
             case "Pong" -> drawPong(g2, w, h);
             case "Memory Game" -> drawMemory(g2, w, h);
             case "Mini Racing" -> drawRacing(g2, w, h);
             case "Chess" -> drawChess(g2, w, h);
             default -> drawCenter(g2, gameName, w, h);
+        }
+    }
+
+    /* ──── CONNECT FOUR ──── */
+    private void drawConnectFour(Graphics2D g2, int w, int h) {
+        try {
+            char[][] board = (char[][]) game.getClass().getMethod("getBoard").invoke(game);
+            int cols = 7;
+            int rows = 6;
+            int boardSize = Math.min(w, h) - 80;
+            int cell = boardSize / cols;
+            int sx = (w - boardSize) / 2;
+            int sy = (h - boardSize) / 2;
+
+            g2.setColor(new Color(28, 64, 180));
+            g2.fillRoundRect(sx - 10, sy - 10, boardSize + 20, boardSize + 20, 18, 18);
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    int x = sx + c * cell;
+                    int y = sy + r * cell;
+                    g2.setColor(new Color(20, 20, 35));
+                    g2.fillRoundRect(x + 4, y + 4, cell - 8, cell - 8, 12, 12);
+
+                    char token = board[r][c];
+                    if (token == 'R') {
+                        g2.setColor(new Color(220, 80, 80));
+                        g2.fillOval(x + 9, y + 9, cell - 18, cell - 18);
+                    } else if (token == 'Y') {
+                        g2.setColor(new Color(255, 210, 70));
+                        g2.fillOval(x + 9, y + 9, cell - 18, cell - 18);
+                    }
+                }
+            }
+            g2.setColor(TEXT);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            g2.drawString("You = Red   |   AI = Yellow", sx, sy - 12);
+        } catch (Exception e) {
+            drawCenter(g2, "Connect Four", w, h);
+        }
+    }
+
+    /* ──── BLACKJACK ──── */
+    private void drawBlackjack(Graphics2D g2, int w, int h) {
+        try {
+            List<?> playerHand = (List<?>) game.getClass().getMethod("getPlayerHand").invoke(game);
+            List<?> dealerHand = (List<?>) game.getClass().getMethod("getDealerHand").invoke(game);
+            int playerValue = (int) game.getClass().getMethod("getPlayerScore").invoke(game);
+            int dealerValue = (int) game.getClass().getMethod("getDealerScore").invoke(game);
+
+            g2.setColor(new Color(20, 30, 40));
+            g2.fillRoundRect(30, 30, w - 60, h - 80, 20, 20);
+
+            g2.setColor(TEXT);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            g2.drawString("Dealer", 60, 70);
+            g2.drawString("Player", 60, h - 90);
+
+            drawHand(g2, dealerHand, 60, 90, w - 120, 90);
+            drawHand(g2, playerHand, 60, h - 150, w - 120, 90);
+
+            g2.setColor(GOLD);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            g2.drawString("Dealer: " + dealerValue, 60, 90 + 105);
+            g2.drawString("Player: " + playerValue, 60, h - 150 + 105);
+
+            g2.setColor(TEXT_DIM);
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2.drawString("Click left = Hit   |   Click right = Stand", w / 2 - 110, h - 18);
+        } catch (Exception e) {
+            drawCenter(g2, "Blackjack", w, h);
+        }
+    }
+
+    private void drawHand(Graphics2D g2, List<?> cards, int x, int y, int width, int height) {
+        int cardWidth = 42;
+        int gap = 14;
+        int startX = x;
+        for (int i = 0; i < cards.size(); i++) {
+            int px = startX + i * (cardWidth + gap);
+            g2.setColor(new Color(250, 250, 250));
+            g2.fillRoundRect(px, y, cardWidth, height - 12, 10, 10);
+            g2.setColor(new Color(80, 80, 120));
+            g2.drawRoundRect(px, y, cardWidth, height - 12, 10, 10);
+            g2.setColor(new Color(30, 30, 40));
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g2.drawString(String.valueOf(cards.get(i)), px + 14, y + 28);
         }
     }
 

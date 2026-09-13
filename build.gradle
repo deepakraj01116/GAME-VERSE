@@ -93,6 +93,8 @@ project(':ui') {
         implementation project(':games:tictactoe')
         implementation project(':games:memory')
         implementation project(':games:racing')
+        implementation project(':games:connectfour')
+        implementation project(':games:blackjack')
     }
     
     run {
@@ -106,7 +108,7 @@ project(':games:core') {
     }
 }
 
-['chess', 'snake', 'pong', 'tictactoe', 'memory', 'racing'].each { game ->
+['chess', 'snake', 'pong', 'tictactoe', 'memory', 'racing', 'connectfour', 'blackjack'].each { game ->
     project(":games:${game}") {
         dependencies {
             implementation project(':core')
