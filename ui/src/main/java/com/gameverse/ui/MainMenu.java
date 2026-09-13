@@ -273,7 +273,7 @@ public class MainMenu extends JFrame {
     /* ═══════════════════ GAMES GRID ═══════════════════ */
 
     private JPanel createGamesPanel() {
-        JPanel panel = new JPanel(new GridLayout(3, 3, 14, 14));
+        JPanel panel = new JPanel(new GridLayout(0, 3, 14, 14));
         panel.setOpaque(false);
         for (int i = 0; i < GAMES.length; i++) {
             panel.add(createGameCard(i));
@@ -400,6 +400,10 @@ public class MainMenu extends JFrame {
                 }
                 if ("Mirror World".equals(name)) {
                     MirrorWorldLauncher.launch();
+                    return; // external web game — keep the hub open
+                }
+                if ("One Bullet".equals(name)) {
+                    OneBulletLauncher.launch();
                     return; // external web game — keep the hub open
                 }
                 dispose();
