@@ -43,6 +43,8 @@ public class MainMenu extends JFrame {
         {"Snake", "🐍", "Classic snake — eat, grow, survive"},
         {"Pong", "🏓", "Paddle ball with AI"},
         {"Tic-Tac-Toe", "❌", "Turn-based with smart AI"},
+        {"Connect Four", "🔴", "Drop discs and connect four"},
+        {"Blackjack", "🂡", "Beat the dealer without busting"},
         {"Memory Game", "🧠", "Match the hidden pairs"},
         {"Mini Racing", "🏎️", "Race to the finish line"},
         {"DON'T LOOK", "👁️", "It only moves when you're not looking"},
@@ -53,16 +55,18 @@ public class MainMenu extends JFrame {
 
     // One accent per game card
     private static final Color[] GAME_ACCENTS = {
-        new Color(130, 165, 255), // Chess      — blue
-        new Color(95, 215, 145),  // Snake      — green
-        new Color(95, 200, 225),  // Pong       — cyan
-        new Color(255, 185, 95),  // TTT        — orange
-        new Color(200, 150, 255), // Memory     — purple
-        new Color(255, 125, 120), // Racing     — red
-        new Color(205, 205, 220), // DON'T LOOK — ghost white
+        new Color(130, 165, 255), // Chess          — blue
+        new Color(95, 215, 145),  // Snake          — green
+        new Color(95, 200, 225),  // Pong           — cyan
+        new Color(255, 185, 95),  // Tic-Tac-Toe    — orange
+        new Color(200, 150, 255), // Connect Four   — purple
+        new Color(255, 125, 120), // Blackjack      — coral red
+        new Color(170, 145, 255), // Memory Game    — violet
+        new Color(255, 200, 80),  // Mini Racing    — gold
+        new Color(205, 205, 220), // DON'T LOOK     — ghost white
         new Color(255, 110, 140), // UNKNOWN SIGNAL — signal red
-        new Color(150, 220, 255), // Mirror World — mirror cyan
-        new Color(255, 200, 50)   // One Bullet — bullet gold
+        new Color(150, 220, 255), // Mirror World   — mirror cyan
+        new Color(255, 200, 50)   // One Bullet     — bullet gold
     };
 
     public interface MainMenuCallback {

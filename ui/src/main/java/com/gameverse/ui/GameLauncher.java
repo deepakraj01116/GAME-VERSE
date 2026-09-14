@@ -1,7 +1,9 @@
 package com.gameverse.ui;
 
 import com.gameverse.core.GameRegistry;
+import com.gameverse.games.blackjack.BlackjackGame;
 import com.gameverse.games.chess.ChessGame;
+import com.gameverse.games.connectfour.ConnectFourGame;
 import com.gameverse.games.memory.MemoryGame;
 import com.gameverse.games.pong.PongGame;
 import com.gameverse.games.racing.RacingGame;
@@ -32,6 +34,8 @@ public class GameLauncher {
         registry.registerGame("Snake", SnakeGame.class);
         registry.registerGame("Pong", PongGame.class);
         registry.registerGame("Tic-Tac-Toe", TicTacToeGame.class);
+        registry.registerGame("Connect Four", ConnectFourGame.class);
+        registry.registerGame("Blackjack", BlackjackGame.class);
         registry.registerGame("Memory Game", MemoryGame.class);
         registry.registerGame("Mini Racing", RacingGame.class);
         System.out.println("✓ Registered " + registry.getGameCount() + " games");
