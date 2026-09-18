@@ -26,6 +26,7 @@ public class ConnectFourGame extends BaseGame {
     private final char aiPlayer = YELLOW;
     private boolean gameOver;
     private int moves;
+    private int lastAiColumn = -1;
     private final Random random = new Random();
 
     public ConnectFourGame() {
@@ -40,6 +41,7 @@ public class ConnectFourGame extends BaseGame {
         currentPlayer = humanPlayer;
         gameOver = false;
         moves = 0;
+        lastAiColumn = -1;
         result = null;
     }
 
@@ -65,6 +67,7 @@ public class ConnectFourGame extends BaseGame {
         if (move == -1) {
             return;
         }
+        lastAiColumn = move;
         makeMove(move);
     }
 
@@ -79,6 +82,11 @@ public class ConnectFourGame extends BaseGame {
     public boolean makeMove(int column) {
         if (!isRunning() || gameOver || column < 0 || column >= COLS) {
             return false;
+        }
+        // A human move invalidates the previous AI reply so the UI can tell
+        // apart "AI hasn't answered yet" from a stale column.
+        if (currentPlayer == humanPlayer) {
+            lastAiColumn = -1;
         }
         if (currentPlayer != humanPlayer && currentPlayer != aiPlayer) {
             return false;
@@ -117,6 +125,11 @@ public class ConnectFourGame extends BaseGame {
 
     public char getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    /** Column of the AI's most recent reply, or -1 if it hasn't answered yet. */
+    public int getLastAiColumn() {
+        return lastAiColumn;
     }
 
     public boolean isBoardFull() {

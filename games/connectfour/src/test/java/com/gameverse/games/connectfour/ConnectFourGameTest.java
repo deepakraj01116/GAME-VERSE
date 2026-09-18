@@ -53,6 +53,45 @@ class ConnectFourGameTest {
     }
 
     @Test
+    void detectsDiagonalWinDownRight() {
+        ConnectFourGame game = new ConnectFourGame();
+        game.start();
+
+        // Builds a "\" diagonal: (5,0), (4,1), (3,2), (2,3) all Red.
+        // Yellow fills the support cells underneath each diagonal target.
+        int[] columns = {0, 1, 1, 2, 2, 3, 3, 3, 2, 6, 3};
+        for (int col : columns) {
+            game.makeMove(col);
+        }
+        // Board after the sequence:
+        //   R: (5,0) (4,1) (4,2) (4,3) (3,2) (2,3)
+        //   Y: (5,1) (5,2) (5,3) (3,3) (5,6)
+        // The final R at (2,3) completes (5,0)-(4,1)-(3,2)-(2,3).
+
+        assertTrue(game.isGameOver(), "down-right diagonal win should end the game");
+        assertEquals(GameResult.Status.WON, game.getResult().getStatus());
+    }
+
+    @Test
+    void detectsDiagonalWinUpRight() {
+        ConnectFourGame game = new ConnectFourGame();
+        game.start();
+
+        // Builds a "/" diagonal: (5,3), (4,2), (3,1), (2,0) all Red.
+        int[] columns = {3, 2, 2, 1, 1, 0, 0, 0, 1, 6, 0};
+        for (int col : columns) {
+            game.makeMove(col);
+        }
+        // Board after the sequence:
+        //   R: (5,3) (4,2) (4,1) (4,0) (3,1) (2,0)
+        //   Y: (5,2) (5,1) (5,0) (3,0) (5,6)
+        // The final R at (2,0) completes (5,3)-(4,2)-(3,1)-(2,0).
+
+        assertTrue(game.isGameOver(), "up-right diagonal win should end the game");
+        assertEquals(GameResult.Status.WON, game.getResult().getStatus());
+    }
+
+    @Test
     void rejectsInvalidColumnAndFullColumn() {
         ConnectFourGame game = new ConnectFourGame();
         game.start();
