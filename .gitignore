@@ -2,9 +2,10 @@
 .gradle/
 build/
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
+!gradle-wrapper.jar
 *.war
 *.ear
-gradle-wrapper.jar
 .gradletasknamecache
 
 # IDE
