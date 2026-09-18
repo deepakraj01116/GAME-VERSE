@@ -309,6 +309,19 @@ public class GamePlayScreen extends JFrame {
 
     /** Track the cell under the mouse for hover highlights (Tic-Tac-Toe). */
     private void updateHover(int mx, int my) {
+        // Connect Four: highlight the whole column under the cursor.
+        if ("Connect Four".equals(gameName)) {
+            int newCol = -1;
+            if (game != null && game.isRunning()) {
+                int bs = Math.min(boardPanel.getWidth(), boardPanel.getHeight()) - 80;
+                int cs = bs / 7;
+                int sx = (boardPanel.getWidth() - bs) / 2;
+                int c = (mx - sx) / cs;
+                if (c >= 0 && c < 7) newCol = c;
+            }
+            if (newCol != hoverCol) { hoverRow = -1; hoverCol = newCol; boardPanel.repaint(); }
+            return;
+        }
         if (!"Tic-Tac-Toe".equals(gameName)) {
             if (hoverRow != -1 || hoverCol != -1) { hoverRow = -1; hoverCol = -1; boardPanel.repaint(); }
             return;
@@ -378,7 +391,12 @@ public class GamePlayScreen extends JFrame {
                         boolean ok = (boolean) game.getClass().getMethod("makeMove", int.class).invoke(game, col);
                         if (ok) {
                             game.update(0.1f);
-                            statusLabel.setText("\u27A1\uFE0F Move played. Keep connecting four!");
+                            String msg = "\u27A1\uFE0F You dropped in column " + (col + 1) + " of 7.";
+                            if (game instanceof com.gameverse.games.connectfour.ConnectFourGame c4
+                                    && c4.getLastAiColumn() >= 0) {
+                                msg += "  AI replied in column " + (c4.getLastAiColumn() + 1) + ".";
+                            }
+                            statusLabel.setText(msg);
                         } else {
                             statusLabel.setText("\u26A0\uFE0F That column is full.");
                         }
@@ -533,6 +551,22 @@ public class GamePlayScreen extends JFrame {
                     }
                 }
             }
+            // Column highlight + ghost landing preview under the cursor.
+            if (hoverCol >= 0 && hoverCol < cols) {
+                int hx = sx + hoverCol * cell;
+                g2.setColor(new Color(255, 255, 255, 28));
+                g2.fillRoundRect(hx + 2, sy, cell - 4, rows * cell, 10, 10);
+
+                int landRow = -1;
+                for (int r = rows - 1; r >= 0; r--) {
+                    if (board[r][hoverCol] == ' ') { landRow = r; break; }
+                }
+                if (landRow >= 0) {
+                    g2.setColor(new Color(220, 80, 80, 90));
+                    g2.fillOval(hx + 9, sy + landRow * cell + 9, cell - 18, cell - 18);
+                }
+            }
+
             g2.setColor(TEXT);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
             g2.drawString("You = Red   |   AI = Yellow", sx, sy - 12);
